@@ -8,7 +8,9 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/ws/{id}")
@@ -66,13 +68,14 @@ public class MyWebSocket {
 
 
     public void sendMessageAll(String message) throws IOException {
+        Set<String> strings = clients.keySet();
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("members", strings);
+        map.put("msg", message);
+        String msg = JSON.toJSONString(map);
         for (MyWebSocket item : clients.values()) {
-            String username = item.username;
-            if (!message.contains(username)) {
-                item.session.getAsyncRemote().sendText(message);
-            }
+            item.session.getAsyncRemote().sendText(msg);
         }
-
     }
 
 
